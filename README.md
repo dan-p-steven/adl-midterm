@@ -3,20 +3,15 @@ Humber ADL Midterm Project to compare optimizers' effects on a feedforward netwo
 
 ### **Project Structure**
 
-adl-midterm/
-│── data/                   # Store datasets\
-│\
-│── models/                 # Save trained models\
-│\
-│── src/                    # Source code\
-│   ├── model.py\
-│   ├── grid_search.py\
-│   ├── utils.py\
-│\
-│── notebooks/              # .ipynb files you wish to run, save graphs here\
-│   ├── experiments.ipynb\
-│\
-│── main.py                 # Main script\
-│── README.md               # Project documentation\
-│── .gitignore              # Ignore unnecessary files\
+data/
+* store .csv files here
+
+models/ 
+* save model files here
+
+src/ 
+* source files
+
+notebooks/ 
+* .ipynb files you wish to run, also save graphs here
 
