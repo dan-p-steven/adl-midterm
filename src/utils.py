@@ -91,3 +91,41 @@ def k_fold_cross_val(folds, dataset, opt_name, opt_params, train_params):
 
     # Return the mean accuracy
     return sum(accs)/len(accs)
+
+def final_train(dataset, opt_name, opt_params, train_params):
+
+    # Load data
+    train_loader = DataLoader(dataset, train_params['batch_size'], shuffle=True)
+
+    # Initialize model, loss, and optimizer
+    model = FNNModel()
+    loss_fn = nn.CrossEntropyLoss()
+    opt = create_optimizer(
+                           name=opt_name, 
+                           model_params=model.parameters(),
+                           args=opt_params
+                           )
+
+    # Train model
+    start_time = time.time()
+    losses = model.fit(train_loader, loss_fn, opt, epochs=train_params['epochs'])
+    end_time = time.time()
+
+    total_time = end_time - start_time
+
+    return model, losses, total_time
+
+
+def final_evaluate(model, loss_fn, X_test, y_test ):
+
+    # Validate model
+    outputs = model.predict(X_test)
+    test_loss = loss_fn(outputs, y_test)
+
+    # Calculate validation accuracy
+    _, y_pred = torch.max(outputs, 1)
+    correct = (y_pred == y_test).sum().item()
+    acc = correct / y_test.size(0) * 100
+
+    return acc, test_loss
+

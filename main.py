@@ -1,8 +1,10 @@
+import torch.nn as nn
+
 import src
 from src.model import FNNModel
 from src.data_loader import load_data
 from src.grid_search import grid_search
-from src.utils import create_optimizer, k_fold_cross_val
+from src.utils import create_optimizer, k_fold_cross_val, final_train, final_evaluate
 
 
 ARGS = {
@@ -21,8 +23,6 @@ ARGS = {
             }
 }
 
-d
-
 
 def main():
 
@@ -35,8 +35,10 @@ def main():
 
     # TODO:
     # 1. Create and train model with optimal params
+    #model, epoch_losses, train_time = final_train(...)
 
     # 2. Evaluate the model on test set
+    #acc, _ = final_evaluate(model, nn.CrossEntropyLoss(), X_test, y_test)
 
     # 3. Compare and contrast across optimizers
 
