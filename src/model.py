@@ -22,9 +22,6 @@ class FNNModel(nn.Module):
         # Record epoch losses
         epoch_losses = []
 
-        # Start timer
-        start_time = time.time()
-
         for epoch in range(epochs):
             self.train()  # Set the model to training mode
             running_loss = 0.0
@@ -53,39 +50,17 @@ class FNNModel(nn.Module):
             epoch_losses.append(epoch_loss)  # Add the average loss of this epoch to the list
 
             # Print statistics for each epoch
-            print(f"Epoch [{epoch+1}/{epochs}], Loss: {epoch_loss:.4f}")
+            print(f"\tEpoch [{epoch+1}/{epochs}] loss: {epoch_loss:.4f}")
 
-        # Record time
-        end_time = time.time()
-        training_time = end_time - start_time
+        return epoch_losses
 
-        return epoch_losses, training_time
-
-    def predict(self, test_loader):
+    def predict(self, x):
 
         # Set to eval mode
         self.eval()
 
         # Tracker variables for accuracy and outputs
-        correct, total = 0, 0
-        outputs = []
-
         with torch.no_grad():
-            for images, labels in test_loader:
+            predict = self(x)
 
-                # Forward pass
-                out = self(images)
-
-                # Append outputs to running list
-                outputs.append(out)
-
-                _, predicted = torch.max(out, 1)
-
-                # Add to total and correct counter
-                total += labels.size(0)
-                correct += (predicted == labels).sum().item()
-
-        accuracy = correct / total * 100
-        outputs = torch.cat(outputs, dim=0)
-
-        return outputs, accuracy
+        return predict
