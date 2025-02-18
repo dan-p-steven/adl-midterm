@@ -18,6 +18,11 @@ class FNNModel(nn.Module):
         return x
 
     def fit(self, train_loader, loss_fn, optimizer, epochs=5):
+        '''
+        Training loop for neural network.
+
+        Returns loss per epoch during training.
+        '''
 
         # Record epoch losses
         epoch_losses = []
@@ -55,6 +60,11 @@ class FNNModel(nn.Module):
         return epoch_losses
 
     def predict(self, x):
+        '''
+        Evaluate data and return predictions.
+
+        Returns predictions for data x.
+        '''
 
         # Set to eval mode
         self.eval()

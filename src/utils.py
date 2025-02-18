@@ -9,7 +9,9 @@ from src.model import FNNModel
 
 def create_optimizer(name, model_params, args):
     '''
-    Create an optimizer given dictionary of arguments.
+    Create a specified optimizer given dictionary of arguments.
+
+    Returns optimizer object instantianted with parameters.
     '''
 
     if name == 'adam':
@@ -24,6 +26,13 @@ def create_optimizer(name, model_params, args):
         return None
 
 def k_fold_cross_val(folds, dataset, opt_name, opt_params, train_params):
+
+    '''
+    Perform K-fold cross validation on dataset with given optimize and training
+    parameters. Prints the loss per fold.
+
+    Returns the mean accuracy across all folds.
+    '''
 
     # Generate indices for K-folds
     skf = StratifiedKFold(n_splits=folds, shuffle=True, random_state=42)

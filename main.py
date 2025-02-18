@@ -6,12 +6,12 @@ from src.utils import create_optimizer, k_fold_cross_val
 
 
 ARGS = {
-        'optimizer': 'adam',
-        #'optimizer': 'adamw',
+        #'optimizer': 'adam',
+        'optimizer': 'adamw',
         #'optimizer': 'rmsprop',
 
         'optimizer_param_grid': {
-            'lr': [1],
+            'lr': [0.001, 1],
             'eps': [1e-8]
             },
 
@@ -21,6 +21,7 @@ ARGS = {
             }
 }
 
+d
 
 
 def main():
@@ -30,8 +31,14 @@ def main():
 
     # Perform grid search
     score, opt_params, train_params = grid_search(dataset=trainset, args=ARGS)
-
     print (f'\n\nBEST OVERALL ACCURACY: {score}%\nOPTIMIZER PARAMS: {opt_params}\nTRAINING PARAMS: {train_params}\n')
+
+    # TODO:
+    # 1. Create and train model with optimal params
+
+    # 2. Evaluate the model on test set
+
+    # 3. Compare and contrast across optimizers
 
 
 if __name__ == "__main__":

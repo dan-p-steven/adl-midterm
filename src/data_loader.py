@@ -3,6 +3,11 @@ from torchvision import transforms
 from torchvision.datasets import KMNIST
 
 def load_data():
+    '''
+    Fetch and normalize KMNIST data.
+
+    Returns normalized KMNIST train and test data.
+    '''
 
 
     # Construct toTensor transform.
