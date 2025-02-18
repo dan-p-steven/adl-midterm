@@ -13,12 +13,13 @@ ARGS = {
         #'optimizer': 'rmsprop',
 
         'optimizer_param_grid': {
-            'lr': [0.001, 1],
-            'eps': [1e-8]
+            'lr': [0.0001, 0.001, 0.01],
+            'betas': [(0.9, 0.999), (0.5, 0.999)], # remove for rmsprop :)
+            'weight_decay': [1e-4, 1e-2]
             },
 
         'training_param_grid': {
-            'epochs': [5],
+            'epochs': [5, 10, 20],
             'batch_size': [128]
             }
 }
