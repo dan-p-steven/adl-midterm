@@ -48,10 +48,20 @@ def k_fold_cross_val(folds: int, dataset):
         total_time = end_time - start_time 
 
         # Validate model
-        y_pred = model.predict(X_val)
-        val_loss = loss_fn(y_pred, y_val)
+        outputs = model.predict(X_val)
+        val_loss = loss_fn(outputs, y_val)
+
+        # Calculate validation accuracy
+        _, y_pred = torch.max(outputs, 1)
+
+        # Compare predictions to the true labels
+        correct = (y_pred == y_val).sum().item()
+
+        # Calculate accuracy
+        acc = correct / y_val.size(0) * 100
 
         print(f'\n\tval loss {val_loss:.3f}')
+        print(f'\tval acc {acc:.2f}%')
         print(f'\ttrain time {total_time:.2f}s')
 
     
