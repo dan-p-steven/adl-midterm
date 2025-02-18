@@ -17,7 +17,7 @@ def main():
 
     # Convert into loaders
     train_loader = DataLoader(trainset, batch_size=BATCH_SIZE, shuffle=True)
-    #test_loader = DataLoader(testset, batch_size=BATCH_SIZE, shuffle=False)
+    test_loader = DataLoader(testset, batch_size=BATCH_SIZE, shuffle=False)
 
 
     # Checking the shape of the data
@@ -27,11 +27,15 @@ def main():
 
 
     model = FNNModel()
-    criterion = nn.CrossEntropyLoss()
+    loss_fn = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-    model.fit(train_loader, criterion, optimizer)
+    epoch_losses, time = model.fit(train_loader, loss_fn, optimizer, epochs=5)
 
+    print(f'Training time: {time}')
+
+    outputs, acc = model.predict(test_loader)
+    print(f'test set acc: {acc}')
     
 
 if __name__ == "__main__":

@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import time
@@ -16,7 +17,7 @@ class FNNModel(nn.Module):
         x = F.softmax(self.fc3(x))
         return x
 
-    def fit(self, train_loader, criterion, optimizer, epochs=5):
+    def fit(self, train_loader, loss_fn, optimizer, epochs=5):
 
         # Record epoch losses
         epoch_losses = []
@@ -36,7 +37,7 @@ class FNNModel(nn.Module):
                 outputs = self(images)
 
                 # Compute the loss
-                loss = criterion(outputs, labels)
+                loss = loss_fn(outputs, labels)
 
                 # Backward pass: Compute gradients
                 loss.backward()
@@ -59,3 +60,32 @@ class FNNModel(nn.Module):
         training_time = end_time - start_time
 
         return epoch_losses, training_time
+
+    def predict(self, test_loader):
+
+        # Set to eval mode
+        self.eval()
+
+        # Tracker variables for accuracy and outputs
+        correct, total = 0, 0
+        outputs = []
+
+        with torch.no_grad():
+            for images, labels in test_loader:
+
+                # Forward pass
+                out = self(images)
+
+                # Append outputs to running list
+                outputs.append(out)
+
+                _, predicted = torch.max(out, 1)
+
+                # Add to total and correct counter
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+
+        accuracy = correct / total * 100
+        outputs = torch.cat(outputs, dim=0)
+
+        return outputs, accuracy
