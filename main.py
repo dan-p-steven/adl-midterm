@@ -1,107 +1,38 @@
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset, Subset
-
-from sklearn.model_selection import StratifiedKFold
-
 import src
 from src.model import FNNModel
+from src.data_loader import load_data
+from src.grid_search import grid_search
+from src.utils import create_optimizer, k_fold_cross_val
 
-import time
 
-BATCH_SIZE = 256 
+ARGS = {
+        'optimizer': 'adam',
+        #'optimizer': 'adamw',
+        #'optimizer': 'rmsprop',
+
+        'optimizer_param_grid': {
+            'lr': [1],
+            'eps': [1e-8]
+            },
+
+        'training_param_grid': {
+            'epochs': [5],
+            'batch_size': [128]
+            }
+}
 
 
-def k_fold_cross_val(folds: int, dataset):
-
-    skf = StratifiedKFold(n_splits=folds, shuffle=True, random_state=42)
-
-    dataloader = DataLoader(dataset, batch_size=len(dataset), shuffle=False)
-
-    for data, label in dataloader:
-        X = data
-        y = label
-    
-    # Perform K-Fold Cross Validation
-    for fold, (train_idx, val_idx) in enumerate(skf.split(X, y)):
-
-        X_train, X_val = X[train_idx], X[val_idx]
-        y_train, y_val = y[train_idx], y[val_idx]
-
-        # Convert X, y tensors into Tensor dataset, then load it
-        train_dataset = TensorDataset(X_train, y_train)
-        train_loader = DataLoader(train_dataset, BATCH_SIZE, shuffle=True)
-
-        print(f'\nFold {fold + 1}/{folds}')
-        
-        # Initialize model, loss, and optimizer
-        model = FNNModel()
-        opt = optim.Adam(model.parameters(), lr=0.01)
-        loss_fn = nn.CrossEntropyLoss()
-        
-        # Train model
-        start_time = time.time()
-        train_losses = model.fit(train_loader, loss_fn, opt, epochs=5)
-        end_time = time.time()
-
-        total_time = end_time - start_time 
-
-        # Validate model
-        outputs = model.predict(X_val)
-        val_loss = loss_fn(outputs, y_val)
-
-        # Calculate validation accuracy
-        _, y_pred = torch.max(outputs, 1)
-
-        # Compare predictions to the true labels
-        correct = (y_pred == y_val).sum().item()
-
-        # Calculate accuracy
-        acc = correct / y_val.size(0) * 100
-
-        print(f'\n\tval loss {val_loss:.3f}')
-        print(f'\tval acc {acc:.2f}%')
-        print(f'\ttrain time {total_time:.2f}s')
-
-    
 
 def main():
 
     # Load KMNIST data
-    trainset, testset = src.data_loader.load_data()
+    trainset, testset = load_data()
 
-    k_fold_cross_val(folds=5, dataset=trainset)
+    # Perform grid search
+    score, opt_params, train_params = grid_search(dataset=trainset, args=ARGS)
 
-    # Convert into loaders
-    #train_loader = DataLoader(trainset, batch_size=BATCH_SIZE, shuffle=True)
-    #test_loader = DataLoader(testset, batch_size=BATCH_SIZE, shuffle=False)
+    print (f'\n\nBEST OVERALL ACCURACY: {score}%\nOPTIMIZER PARAMS: {opt_params}\nTRAINING PARAMS: {train_params}\n')
 
-
-    # Checking the shape of the data
-    #data_iter = iter(train_loader)
-    #images, labels = next(data_iter)
-    #print(f"Image shape: {images.shape}, Labels shape: {labels.shape}")
-
-    #params = {
-    #        'optimizer':,
-    #        'loss': nn.CrossEntropyLoss(),
-    #        'lr': 0.01,
-    #        'epochs': 5
-    #        }
-
-
-    #model = FNNModel()
-    #loss_fn = nn.CrossEntropyLoss()
-    #optimizer = optim.Adam(model.parameters(), lr=0.001)
-
-    #epoch_losses, time = model.fit(train_loader, loss_fn, optimizer, epochs=5)
-
-    #print(f'Training time: {time}')
-
-    #outputs, acc = model.predict(test_loader)
-    #print(f'test set acc: {acc}')
-    
 
 if __name__ == "__main__":
     main()

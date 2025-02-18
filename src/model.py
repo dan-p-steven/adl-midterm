@@ -14,7 +14,7 @@ class FNNModel(nn.Module):
         x = x.view(-1, 784)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        x = F.softmax(self.fc3(x))
+        x = F.softmax(self.fc3(x), dim=1)
         return x
 
     def fit(self, train_loader, loss_fn, optimizer, epochs=5):
@@ -50,7 +50,7 @@ class FNNModel(nn.Module):
             epoch_losses.append(epoch_loss)  # Add the average loss of this epoch to the list
 
             # Print statistics for each epoch
-            print(f"\tEpoch [{epoch+1}/{epochs}] loss: {epoch_loss:.4f}")
+            print(f"\t\tEpoch [{epoch+1}/{epochs}] loss: {epoch_loss:.4f}")
 
         return epoch_losses
 
