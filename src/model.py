@@ -17,15 +17,17 @@ class FNNModel(nn.Module):
         x = F.softmax(self.fc3(x), dim=1)
         return x
 
-    def fit(self, train_loader, loss_fn, optimizer, epochs=5):
+    def fit(self, train_loader, X_test, y_test, loss_fn, optimizer, epochs=5):
         '''
         Training loop for neural network.
 
         Returns loss per epoch during training.
         '''
 
+
         # Record epoch losses
         epoch_losses = []
+        epoch_accs = []
 
         for epoch in range(epochs):
             self.train()  # Set the model to training mode
@@ -54,10 +56,26 @@ class FNNModel(nn.Module):
             epoch_loss = running_loss / len(train_loader)
             epoch_losses.append(epoch_loss)  # Add the average loss of this epoch to the list
 
+            # Calculate accuracies per epoch. Only used in the final train and
+            # evaluation. Not used during KFCV
+            if X_test.numel() != 0:
+
+                # 1. forward pass on test x
+                outputs = self.predict(X_test)
+
+                # 2. compute acc with test y
+                _, y_pred = torch.max(outputs, 1)
+                correct = (y_pred == y_test).sum().item()
+                acc = correct / y_test.size(0) * 100
+
+                # 3. collect acc/epoch
+                epoch_accs.append(acc)
+
+
             # Print statistics for each epoch
             print(f"\t\tEpoch [{epoch+1}/{epochs}] loss: {epoch_loss:.4f}")
 
-        return epoch_losses
+        return epoch_losses, epoch_accs
 
     def predict(self, x):
         '''

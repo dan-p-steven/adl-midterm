@@ -69,7 +69,7 @@ def k_fold_cross_val(folds, dataset, opt_name, opt_params, train_params):
 
         # Train model
         start_time = time.time()
-        model.fit(train_loader, loss_fn, opt, epochs=train_params['epochs'])
+        model.fit(train_loader, torch.empty(0), torch.empty(0), loss_fn, opt, train_params['epochs'])
         end_time = time.time()
 
         total_time = end_time - start_time 
@@ -92,10 +92,10 @@ def k_fold_cross_val(folds, dataset, opt_name, opt_params, train_params):
     # Return the mean accuracy
     return sum(accs)/len(accs)
 
-def final_train(dataset, opt_name, opt_params, train_params):
+def final_train_and_evaluate(trainset, testset, opt_name, opt_params, train_params):
 
     # Load data
-    train_loader = DataLoader(dataset, train_params['batch_size'], shuffle=True)
+    train_loader = DataLoader(trainset, train_params['batch_size'], shuffle=True)
 
     # Initialize model, loss, and optimizer
     model = FNNModel()
@@ -106,26 +106,18 @@ def final_train(dataset, opt_name, opt_params, train_params):
                            args=opt_params
                            )
 
-    # Train model
+    # Extract x, y from testset
+    test_loader = DataLoader(testset, batch_size=len(testset), shuffle=False)
+    for data, label in test_loader:
+        X_test = data
+        y_test = label
+
+    # Train model, during training, evaluate the accuracy on the test set after
+    # every epoch. Additionally, record the time taken to train.
     start_time = time.time()
-    losses = model.fit(train_loader, loss_fn, opt, epochs=train_params['epochs'])
+    losses, accs = model.fit(train_loader, X_test, y_test, loss_fn, opt, train_params['epochs'])
     end_time = time.time()
 
     total_time = end_time - start_time
 
-    return model, losses, total_time
-
-
-def final_evaluate(model, loss_fn, X_test, y_test ):
-
-    # Validate model
-    outputs = model.predict(X_test)
-    test_loss = loss_fn(outputs, y_test)
-
-    # Calculate validation accuracy
-    _, y_pred = torch.max(outputs, 1)
-    correct = (y_pred == y_test).sum().item()
-    acc = correct / y_test.size(0) * 100
-
-    return acc, test_loss
-
+    return model, losses, accs, total_time

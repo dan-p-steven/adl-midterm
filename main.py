@@ -1,10 +1,12 @@
+import torch
+import json
 import torch.nn as nn
 
 import src
 from src.model import FNNModel
 from src.data_loader import load_data
 from src.grid_search import grid_search
-from src.utils import create_optimizer, k_fold_cross_val, final_train, final_evaluate
+from src.utils import create_optimizer, final_train_and_evaluate, k_fold_cross_val
 
 
 ARGS = {
@@ -32,17 +34,24 @@ def main():
 
     # Perform grid search
     score, opt_params, train_params = grid_search(dataset=trainset, args=ARGS)
-    print (f'\n\nBEST OVERALL ACCURACY: {score}%\nOPTIMIZER PARAMS: {opt_params}\nTRAINING PARAMS: {train_params}\n')
+    print (f'\n\nBEST OVERALL VAL ACCURACY: {score}%\nOPTIMIZER PARAMS: {opt_params}\nTRAINING PARAMS: {train_params}\n')
 
-    # TODO:
+    print(f'\nTRAINING AND EVALUATING FINAL MODEL W/ BEST PARAMS ...')
     # 1. Create and train model with optimal params
-    #model, epoch_losses, train_time = final_train(...)
+    model, epoch_losses, epoch_accs, train_time = final_train_and_evaluate(trainset, 
+                                                                           testset, 
+                                                                           opt_name=ARGS['optimizer'], 
+                                                                           opt_params=opt_params,
+                                                                           train_params=train_params)
 
-    # 2. Evaluate the model on test set
-    #acc, _ = final_evaluate(model, nn.CrossEntropyLoss(), X_test, y_test)
+    # Write model weights to file
+    print(f'\nModel weights saved to '+f'./models/{ARGS["optimizer"]}.pth')
+    torch.save(model.state_dict(), f'./models/{ARGS["optimizer"]}.pth')
 
-    # 3. Compare and contrast across optimizers
-
+    # Write model metrics to file as well.
+    print(f'Model metrics saved to '+f'./models/{ARGS["optimizer"]}_metrics.json')
+    with open(f'./models/{ARGS["optimizer"]}_metrics.json', "w") as f:
+        json.dump([epoch_losses, epoch_accs, train_time], f, indent=4)
 
 if __name__ == "__main__":
     main()
