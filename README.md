@@ -8,7 +8,7 @@ Create a model with specified hyperparameter grid to train on KMNIST data set. U
 
     * select desired optimizer.
     * specify desired optimizer parameter grid.
-    * specify desired training parameter grid.
+    * specify desired training parameter grid (currently only 'batch_size', 'epochs' supported).
 
 2. Run main.py
 
