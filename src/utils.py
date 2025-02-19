@@ -21,7 +21,7 @@ def create_optimizer(name, model_params, args):
         return optim.AdamW(model_params, **args)
 
     elif name == 'rmsprop':
-        return optim.RSMprop(model_params, **args)
+        return optim.RMSprop(model_params, **args)
     else: 
         return None
 
